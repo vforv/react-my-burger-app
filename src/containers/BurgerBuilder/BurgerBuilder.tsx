@@ -4,6 +4,9 @@ import BuildControls from '../../components/Burger/BuildControls/BuildControls';
 import OrderSummary from '../../components/Burger/OrderSummery/OrderSummery';
 import Modal from '../../components/UI/Modal/Modal';
 import Aux from '../../hoc/Aux/Aux';
+import axios from '../../axios-order';
+import Spinner from '../../components/UI/Spinner/Spinner';
+import WithErrorHandler from '../../hoc/withErrorHandler/WithErrorHandler';
 
 const INGREDIENTS_PRICE = {
     salad: 0.3,
@@ -14,14 +17,20 @@ const INGREDIENTS_PRICE = {
 
 class BurderBuilder extends React.Component {
     public state = {
-        ingredients: {
-            salad: 0,
-            bacon: 0,
-            cheese: 0,
-            meat: 0
-        },
+        ingredients: {},
         price: 4,
-        isPurchasable: false
+        isPurchasable: false,
+        loading: false
+    }
+
+    public componentDidMount() {
+        axios.get('/ingredients.json')
+            .then((response: any) => {
+                this.setState({ ingredients: response.data })
+            })
+            .catch((error: any) => {
+                console.log(error)
+            });
     }
 
     public addIngredientHandler = (type: string) => {
@@ -65,7 +74,34 @@ class BurderBuilder extends React.Component {
     }
 
     public handlerPurchaseContinue = () => {
-        return;
+        this.setState({ loading: true });
+        const order = {
+            ingredients: this.state.ingredients,
+            price: this.state.price,
+            customer: {
+                name: 'Max Sch',
+                address: {
+                    street: 'Teststreet 1',
+                    zipCode: '123',
+                    country: 'Germany'
+                },
+                email: 'test@gmailc.om'
+            },
+            deliveryMethod: 'fastedst'
+        };
+
+        axios
+            .post('/orders.json', order)
+            .then(response => {
+                this.setState({ loading: false });
+                this.setState({ isPurchasable: false });
+                console.log(response)
+            })
+            .catch(error => {
+                this.setState({ loading: false });
+                this.setState({ isPurchasable: false });
+                console.log(error)
+            });
     }
 
     public render() {
@@ -78,19 +114,23 @@ class BurderBuilder extends React.Component {
                 purchaseDisabled = false;
             }
         }
+        let orderSummary = <OrderSummary
+            ingredients={this.state.ingredients}
+            purchaseCancel={this.handleCancelModal}
+            purchaseContinue={this.handlerPurchaseContinue}
+            price={this.state.price}
+        />;
 
+        if (this.state.loading) {
+            orderSummary = <Spinner />
+        }
         return (
             <Aux>
                 <Modal
-                    purchasable={this.state.isPurchasable}
+                    show={this.state.isPurchasable}
                     cancelModel={this.handleCancelModal}
                 >
-                    <OrderSummary
-                        ingredients={this.state.ingredients}
-                        purchaseCancel={this.handleCancelModal}
-                        purchaseContinue={this.handlerPurchaseContinue}
-                        price={this.state.price}
-                    />
+                    {orderSummary}
                 </Modal>
                 <Burger ingredients={this.state.ingredients} />
                 <BuildControls
@@ -106,4 +146,4 @@ class BurderBuilder extends React.Component {
     }
 }
 
-export default BurderBuilder;
+export default WithErrorHandler(BurderBuilder, axios);
