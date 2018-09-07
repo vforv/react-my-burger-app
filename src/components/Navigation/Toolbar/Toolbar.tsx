@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as css from './Toolbar.css';
 import Logo from '../../Logo/Logo';
-import NavigationItems from 'src/components/Navigation/NavigationItems/NavigationItems';
+import NavigationItems from '../NavigationItems/NavigationItems';
 
 const Toolbar = (props: any) => (
     <header className={css.Toolbar}>
