@@ -15,7 +15,7 @@ const INGREDIENTS_PRICE = {
     meat: 0.5
 }
 
-class BurderBuilder extends React.Component {
+class BurderBuilder extends React.Component<any> {
     public state = {
         ingredients: {},
         price: 4,
@@ -74,34 +74,45 @@ class BurderBuilder extends React.Component {
     }
 
     public handlerPurchaseContinue = () => {
-        this.setState({ loading: true });
-        const order = {
-            ingredients: this.state.ingredients,
-            price: this.state.price,
-            customer: {
-                name: 'Max Sch',
-                address: {
-                    street: 'Teststreet 1',
-                    zipCode: '123',
-                    country: 'Germany'
-                },
-                email: 'test@gmailc.om'
-            },
-            deliveryMethod: 'fastedst'
-        };
+        // this.setState({ loading: true });
+        // const order = {
+        //     ingredients: this.state.ingredients,
+        //     price: this.state.price,
+        //     customer: {
+        //         name: 'Max Sch',
+        //         address: {
+        //             street: 'Teststreet 1',
+        //             zipCode: '123',
+        //             country: 'Germany'
+        //         },
+        //         email: 'test@gmailc.om'
+        //     },
+        //     deliveryMethod: 'fastedst'
+        // };
 
-        axios
-            .post('/orders.json', order)
-            .then(response => {
-                this.setState({ loading: false });
-                this.setState({ isPurchasable: false });
-                console.log(response)
-            })
-            .catch(error => {
-                this.setState({ loading: false });
-                this.setState({ isPurchasable: false });
-                console.log(error)
-            });
+        // axios
+        //     .post('/orders.json', order)
+        //     .then(response => {
+        //         this.setState({ loading: false });
+        //         this.setState({ isPurchasable: false });
+        //         console.log(response)
+        //     })
+        //     .catch(error => {
+        //         this.setState({ loading: false });
+        //         this.setState({ isPurchasable: false });
+        //         console.log(error)
+        //     });
+        const queryParams = [];
+        for (const i in this.state.ingredients) {
+            if(this.state.ingredients[i]) {
+                queryParams.push(encodeURIComponent(i) + '=' + encodeURIComponent(this.state.ingredients[i]))
+            }
+        }
+        const queryString = queryParams.join('&');
+        this.props.history.push({
+            pathname: '/checkout',
+            search: `?${queryString}`
+        });
     }
 
     public render() {
