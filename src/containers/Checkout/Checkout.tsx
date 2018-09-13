@@ -1,19 +1,22 @@
 import * as React from 'react';
 import CheckoutSummary from '../../components/Order/CheckoutSummary/CheckoutSummary';
+import { Route } from 'react-router';
+import ContactData from './ContactData/ContactData';
 
 export class Checkout extends React.Component<any> {
     public state = {
         ingredients: {
-            salad: 1,
-            meat: 1,
-            cheese: 1,
-            bacon: 1
-        }
+            salad: 0,
+            meat: 0,
+            cheese: 0,
+            bacon: 0
+        },
+        price: 0
     }
     public componentDidMount() {
-        const ingredients = JSON.parse('{"' + decodeURI(this.props.location.search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/\?/g, "").replace(/=/g,'":"') + '"}');
-
-        this.setState({ ingredients });
+        const ingredients = JSON.parse('{"' + decodeURI(this.props.location.search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/\?/g, "").replace(/=/g, '":"') + '"}');
+        const { price, ...ing } = ingredients;
+        this.setState({ ingredients: ing, price });
     }
 
     public checkoutCancelHandler = () => {
@@ -32,6 +35,11 @@ export class Checkout extends React.Component<any> {
                     ingredients={this.state.ingredients}
                     checkoutCancelled={this.checkoutCancelHandler}
                     checkoutContinued={this.checkoutContinuedHandler}
+                />
+
+                <Route
+                    path={this.props.match.path + '/contact-data'}
+                    render={(props) => (<ContactData ingredients={this.state.ingredients} {...props} price={this.state.price} />)}
                 />
             </div>
         )

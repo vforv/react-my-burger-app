@@ -36,7 +36,7 @@ class BurderBuilder extends React.Component<any> {
     public addIngredientHandler = (type: string) => {
         const updatedIngredients = {
             ...this.state.ingredients,
-            [type]: this.state.ingredients[type] + 1
+            [type]: Number.parseInt(this.state.ingredients[type], 9) + 1
         }
 
         const updatedPrice = INGREDIENTS_PRICE[type] + this.state.price;
@@ -74,40 +74,13 @@ class BurderBuilder extends React.Component<any> {
     }
 
     public handlerPurchaseContinue = () => {
-        // this.setState({ loading: true });
-        // const order = {
-        //     ingredients: this.state.ingredients,
-        //     price: this.state.price,
-        //     customer: {
-        //         name: 'Max Sch',
-        //         address: {
-        //             street: 'Teststreet 1',
-        //             zipCode: '123',
-        //             country: 'Germany'
-        //         },
-        //         email: 'test@gmailc.om'
-        //     },
-        //     deliveryMethod: 'fastedst'
-        // };
-
-        // axios
-        //     .post('/orders.json', order)
-        //     .then(response => {
-        //         this.setState({ loading: false });
-        //         this.setState({ isPurchasable: false });
-        //         console.log(response)
-        //     })
-        //     .catch(error => {
-        //         this.setState({ loading: false });
-        //         this.setState({ isPurchasable: false });
-        //         console.log(error)
-        //     });
         const queryParams = [];
         for (const i in this.state.ingredients) {
-            if(this.state.ingredients[i]) {
+            if (this.state.ingredients[i]) {
                 queryParams.push(encodeURIComponent(i) + '=' + encodeURIComponent(this.state.ingredients[i]))
             }
         }
+        queryParams.push(`price=${this.state.price}`);
         const queryString = queryParams.join('&');
         this.props.history.push({
             pathname: '/checkout',
