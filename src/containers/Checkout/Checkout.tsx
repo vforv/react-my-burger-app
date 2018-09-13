@@ -2,6 +2,7 @@ import * as React from 'react';
 import CheckoutSummary from '../../components/Order/CheckoutSummary/CheckoutSummary';
 import { Route } from 'react-router';
 import ContactData from './ContactData/ContactData';
+import { connect } from 'react-redux';
 
 export class Checkout extends React.Component<any> {
     public state = {
@@ -14,9 +15,9 @@ export class Checkout extends React.Component<any> {
         price: 0
     }
     public componentDidMount() {
-        const ingredients = JSON.parse('{"' + decodeURI(this.props.location.search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/\?/g, "").replace(/=/g, '":"') + '"}');
-        const { price, ...ing } = ingredients;
-        this.setState({ ingredients: ing, price });
+        // const ingredients = JSON.parse('{"' + decodeURI(this.props.location.search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/\?/g, "").replace(/=/g, '":"') + '"}');
+        // const { price, ...ing } = ingredients;
+        // this.setState({ ingredients: ing, price });
     }
 
     public checkoutCancelHandler = () => {
@@ -32,18 +33,24 @@ export class Checkout extends React.Component<any> {
         return (
             <div>
                 <CheckoutSummary
-                    ingredients={this.state.ingredients}
+                    ingredients={this.props.ings}
                     checkoutCancelled={this.checkoutCancelHandler}
                     checkoutContinued={this.checkoutContinuedHandler}
                 />
 
                 <Route
                     path={this.props.match.path + '/contact-data'}
-                    render={(props) => (<ContactData ingredients={this.state.ingredients} {...props} price={this.state.price} />)}
+                    component={ContactData}
                 />
             </div>
         )
     }
 }
 
-export default Checkout;
+const stateToProps = (state: any) => {
+    return {
+        ings: state.ingredients
+    }
+};
+
+export default connect(stateToProps)(Checkout);

@@ -2,6 +2,7 @@ import * as React from 'react';
 import Button from '../../../components/UI/Button/Button';
 import * as css from './ContactData.css';
 import axios from '../../../axios-order';
+import { connect } from 'react-redux';
 
 export class ContactData extends React.Component<any> {
     public state = {
@@ -19,7 +20,7 @@ export class ContactData extends React.Component<any> {
 
         this.setState({ loading: true });
         const order = {
-            ingredients: this.props.ingredients,
+            ingredients: this.props.ings,
             price: this.props.price,
             customer: {
                 name: 'Max Sch',
@@ -61,4 +62,11 @@ export class ContactData extends React.Component<any> {
     }
 }
 
-export default ContactData;
+const stateToProps = (state: any) => {
+    return {
+        ings: state.ingredients,
+        price: state.price
+    }
+};
+
+export default connect(stateToProps)(ContactData);

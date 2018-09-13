@@ -7,62 +7,23 @@ import Aux from '../../hoc/Aux/Aux';
 import axios from '../../axios-order';
 import Spinner from '../../components/UI/Spinner/Spinner';
 import WithErrorHandler from '../../hoc/withErrorHandler/WithErrorHandler';
-
-const INGREDIENTS_PRICE = {
-    salad: 0.3,
-    bacon: 0.2,
-    cheese: 0.1,
-    meat: 0.5
-}
+import { connect } from 'react-redux';
+import { ADD_INGREDIANT, REMOVE_INGREDIANT } from '../../store/action';
 
 class BurderBuilder extends React.Component<any> {
     public state = {
-        ingredients: {},
-        price: 4,
         isPurchasable: false,
         loading: false
     }
 
     public componentDidMount() {
-        axios.get('/ingredients.json')
-            .then((response: any) => {
-                this.setState({ ingredients: response.data })
-            })
-            .catch((error: any) => {
-                console.log(error)
-            });
-    }
-
-    public addIngredientHandler = (type: string) => {
-        const updatedIngredients = {
-            ...this.state.ingredients,
-            [type]: Number.parseInt(this.state.ingredients[type], 9) + 1
-        }
-
-        const updatedPrice = INGREDIENTS_PRICE[type] + this.state.price;
-
-        this.setState({
-            price: updatedPrice,
-            ingredients: updatedIngredients
-        })
-    }
-
-    public removeIngredientHandler = (type: string) => {
-        if (this.state.ingredients[type] === 0) {
-            return;
-        }
-
-        const updatedIngredients = {
-            ...this.state.ingredients,
-            [type]: this.state.ingredients[type] - 1
-        }
-
-        const updatedPrice = this.state.price - INGREDIENTS_PRICE[type];
-
-        this.setState({
-            price: updatedPrice,
-            ingredients: updatedIngredients
-        })
+        // axios.get('/ingredients.json')
+        //     .then((response: any) => {
+        //         this.setState({ ingredients: response.data })
+        //     })
+        //     .catch((error: any) => {
+        //         console.log(error)
+        //     });
     }
 
     public handleShowModal = () => {
@@ -74,22 +35,11 @@ class BurderBuilder extends React.Component<any> {
     }
 
     public handlerPurchaseContinue = () => {
-        const queryParams = [];
-        for (const i in this.state.ingredients) {
-            if (this.state.ingredients[i]) {
-                queryParams.push(encodeURIComponent(i) + '=' + encodeURIComponent(this.state.ingredients[i]))
-            }
-        }
-        queryParams.push(`price=${this.state.price}`);
-        const queryString = queryParams.join('&');
-        this.props.history.push({
-            pathname: '/checkout',
-            search: `?${queryString}`
-        });
+        this.props.history.push('/checkout');
     }
 
     public render() {
-        const disabledInfo = { ...this.state.ingredients };
+        const disabledInfo = { ...this.props.ings };
         let purchaseDisabled = true;
 
         for (const key of Object.keys(disabledInfo)) {
@@ -99,10 +49,10 @@ class BurderBuilder extends React.Component<any> {
             }
         }
         let orderSummary = <OrderSummary
-            ingredients={this.state.ingredients}
+            ingredients={this.props.ings}
             purchaseCancel={this.handleCancelModal}
             purchaseContinue={this.handlerPurchaseContinue}
-            price={this.state.price}
+            price={this.props.price}
         />;
 
         if (this.state.loading) {
@@ -116,13 +66,13 @@ class BurderBuilder extends React.Component<any> {
                 >
                     {orderSummary}
                 </Modal>
-                <Burger ingredients={this.state.ingredients} />
+                <Burger ingredients={this.props.ings} />
                 <BuildControls
-                    ingredientAdded={this.addIngredientHandler}
-                    ingredientRemove={this.removeIngredientHandler}
+                    ingredientAdded={this.props.addIng}
+                    ingredientRemove={this.props.removeIng}
                     disabledObj={disabledInfo}
                     purchase={purchaseDisabled}
-                    price={this.state.price}
+                    price={this.props.price}
                     showModal={this.handleShowModal}
                 />
             </Aux>
@@ -130,4 +80,18 @@ class BurderBuilder extends React.Component<any> {
     }
 }
 
-export default WithErrorHandler(BurderBuilder, axios);
+const stateToMap = (state: any) => {
+    return {
+        ings: state.ingredients,
+        price: state.price
+    }
+}
+
+const mapDispatchToProps = (dispatch: any) => {
+    return {
+        addIng: (ingName: any) => dispatch({ type: ADD_INGREDIANT, ingName }),
+        removeIng: (ingName: any) => dispatch({ type: REMOVE_INGREDIANT, ingName })
+    }
+}
+
+export default connect(stateToMap, mapDispatchToProps)(WithErrorHandler(BurderBuilder, axios));
