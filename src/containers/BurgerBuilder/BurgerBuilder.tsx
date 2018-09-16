@@ -8,7 +8,7 @@ import axios from '../../axios-order';
 import Spinner from '../../components/UI/Spinner/Spinner';
 import WithErrorHandler from '../../hoc/withErrorHandler/WithErrorHandler';
 import { connect } from 'react-redux';
-import { ADD_INGREDIANT, REMOVE_INGREDIANT } from '../../store/action';
+import * as store from '../../store';
 
 class BurderBuilder extends React.Component<any> {
     public state = {
@@ -17,13 +17,7 @@ class BurderBuilder extends React.Component<any> {
     }
 
     public componentDidMount() {
-        // axios.get('/ingredients.json')
-        //     .then((response: any) => {
-        //         this.setState({ ingredients: response.data })
-        //     })
-        //     .catch((error: any) => {
-        //         console.log(error)
-        //     });
+        this.props.onSetIngs();
     }
 
     public handleShowModal = () => {
@@ -81,16 +75,18 @@ class BurderBuilder extends React.Component<any> {
 }
 
 const stateToMap = (state: any) => {
+    console.log(state)
     return {
-        ings: state.ingredients,
-        price: state.price
+        ings: state.burgerBuilder.ingredients,
+        price: state.burgerBuilder.price
     }
 }
 
 const mapDispatchToProps = (dispatch: any) => {
     return {
-        addIng: (ingName: any) => dispatch({ type: ADD_INGREDIANT, ingName }),
-        removeIng: (ingName: any) => dispatch({ type: REMOVE_INGREDIANT, ingName })
+        addIng: (ingName: any) => dispatch(store.addIngredient(ingName)),
+        removeIng: (ingName: any) => dispatch(store.removeIngredient(ingName)),
+        onSetIngs: () => dispatch(store.initIng())
     }
 }
 

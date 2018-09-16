@@ -49,7 +49,7 @@ export class Checkout extends React.Component<any> {
 
 const stateToProps = (state: any) => {
     return {
-        ings: state.ingredients
+        ings: state.burgerBuilder.ingredients
     }
 };
 
